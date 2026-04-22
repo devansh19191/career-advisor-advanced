@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NextStep AI</title>
+
+<style>
+body {
+  font-family: Arial;
+  background:#0f172a;
+  color:white;
+  text-align:center;
+}
+
+.container {
+  max-width:400px;
+  margin:auto;
+  padding:20px;
+  background:#1e293b;
+  border-radius:10px;
+}
+
+input, select {
+  width:90%;
+  padding:10px;
+  margin:10px;
+}
+
+button {
+  padding:10px;
+  background:#22c55e;
+  border:none;
+}
+
+.hidden { display:none; }
+</style>
+</head>
+
+<body>
+
+<h1>🤖 NextStep AI Advisor</h1>
+
+<!-- LOGIN -->
+<div class="container" id="authBox">
+  <h2>Login / Signup</h2>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="signup()">Signup</button>
+  <button onclick="login()">Login</button>
+  <p id="authMsg"></p>
+</div>
+
+<!-- CAREER FORM -->
+<div class="container hidden" id="appBox">
+  <h2>Career Advisor</h2>
+
+  <select id="interest">
+    <option>Technology</option>
+    <option>Business</option>
+    <option>Design</option>
+  </select>
+
+  <select id="skill">
+    <option>Beginner</option>
+    <option>Intermediate</option>
+    <option>Advanced</option>
+  </select>
+
+  <button onclick="getAdvice()">Get Advice</button>
+
+  <div id="output"></div>
+</div>
+
+<script>
+const API = "http://localhost:3000";
+
+// SIGNUP
+async function signup(){
+  let username = document.getElementById("username").value;
+  let password = document.getElementById("password").value;
+
+  let res = await fetch(API+"/signup", {
+    method:"POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({username, password})
+  });
+
+  let data = await res.json();
+  document.getElementById("authMsg").innerText =
+    data.success ? "Signup successful" : data.message;
+}
+
+// LOGIN
+async function login(){
+  let username = document.getElementById("username").value;
+  let password = document.getElementById("password").value;
+
+  let res = await fetch(API+"/login", {
+    method:"POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({username, password})
+  });
+
+  let data = await res.json();
+
+  if(data.success){
+    document.getElementById("authBox").classList.add("hidden");
+    document.getElementById("appBox").classList.remove("hidden");
+  } else {
+    document.getElementById("authMsg").innerText = data.message;
+  }
+}
+
+// AI ADVICE
+async function getAdvice(){
+  let interest = document.getElementById("interest").value;
+  let skill = document.getElementById("skill").value;
+
+  let res = await fetch(API+"/advice", {
+    method:"POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({interest, skill})
+  });
+
+  let data = await res.json();
+
+  document.getElementById("output").innerHTML =
+    `<p>${data.reply}</p>`;
+}
+</script>
+
+</body>
+</html>
